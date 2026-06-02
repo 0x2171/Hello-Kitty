@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Hello Kitty</title>
+    <title>Hello Kittypojka</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Dancing+Script:wght@400;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         *,
         *::before,
@@ -25,7 +26,57 @@
             align-items: center;
             background: radial-gradient(circle at 50% 30%, #fff0f5, #ffb7c5, #ff69b4);
             overflow: hidden;
+            position: relative;
             --unitSize: 1.75vmin;
+        }
+    
+        .handwritten-title {
+            position: absolute;
+            top: max(1.8rem, 4%);
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Pacifico', 'Dancing Script', 'Caveat', cursive;
+            font-weight: 400;
+            font-size: clamp(2.4rem, 7vw, 5.2rem);
+            color: #fff9f0;
+            text-shadow: 6px 6px 18px rgba(0, 0, 0, 0.35),
+                         0px 0px 12px rgba(255, 105, 180, 0.6),
+                         2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.03em;
+            pointer-events: none;
+            z-index: 200;
+            backdrop-filter: blur(1px);
+            transform: rotate(-0.8deg);
+            white-space: nowrap;
+            transition: transform 0.2s ease;
+            animation: softGlow 3s infinite alternate;
+        }
+
+        @keyframes softGlow {
+            0% {
+                text-shadow: 6px 6px 18px rgba(0, 0, 0, 0.35), 0px 0px 8px rgba(255, 105, 180, 0.4);
+            }
+            100% {
+                text-shadow: 6px 6px 22px rgba(0, 0, 0, 0.45), 0px 0px 20px rgba(255, 160, 200, 0.9);
+            }
+        }
+ 
+        @media (max-height: 620px) {
+            .handwritten-title {
+                top: 0.8rem;
+                font-size: clamp(1.6rem, 5vh, 2.6rem);
+                white-space: nowrap;
+                transform: rotate(-0.5deg);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .handwritten-title {
+                font-size: clamp(1.4rem, 6.5vw, 2.4rem);
+                top: 1rem;
+                letter-spacing: 0.01em;
+            }
         }
 
         .symmetry {
@@ -320,9 +371,13 @@
     </style>
 </head>
 <body>
+
+<div class="handwritten-title">
+    Hello Kittypojka ✨
+</div>
+
 <div class="canvas symmetry">
     <div class="kitty symmetry">
-        <!-- Уши -->
         <div class="ear transform" style="--x: calc(var(--unitSize) * -10); --y: calc(var(--unitSize) * -17); --r: 6deg;"></div>
         <div class="ear transform" style="--x: calc(var(--unitSize) * -10); --y: calc(var(--unitSize) * -17); --r: 6deg; --_scale: -1;"></div>
 
