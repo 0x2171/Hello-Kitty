@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Hello Kitty</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at 50% 30%, #fff0f5, #ffb7c5, #ff69b4);
+            overflow: hidden;
+            --unitSize: 1.75vmin;
+        }
+
+        .symmetry {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .canvas {
+            position: relative;
+            width: calc(var(--unitSize) * 80);
+            height: calc(var(--unitSize) * 80);
+        }
+
+        .canvas::after {
+            content: '';
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 12%;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 50%;
+            filter: blur(calc(var(--unitSize) * 1.2));
+            z-index: 0;
+        }
+
+        .canvas * {
+            position: absolute;
+        }
+
+        .transform {
+            --x: 0;
+            --y: 0;
+            --r: 0deg;
+            --s: 0;
+            --sy: 0;
+            --sx: 0;
+            --_scale: 1;
+            transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(var(--r)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy));
+        }
+
+        .flipVertical {
+            --x: 0;
+            --y: 0;
+            --r: 0deg;
+            --s: 0;
+            --sy: 0;
+            --sx: 0;
+            --_scale: -1;
+            transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(var(--r)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy));
+        }
+
+        .ear {
+            border-radius: 20% 80%;
+            aspect-ratio: 1/1;
+            width: calc(var(--unitSize) * 13);
+            background: radial-gradient(ellipse at 50% 35%, #ffffff 40%, #f0f0f0 90%);
+            z-index: 5;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.8) calc(var(--unitSize) * 1.2) rgba(0,0,0,0.06);
+        }
+
+        .face {
+            background: radial-gradient(ellipse at 50% 42%, #ffffff 55%, #f2f2f2 100%);
+            border-radius: 50%;
+            width: calc(var(--unitSize) * 30);
+            height: calc(var(--unitSize) * 25);
+            z-index: 10;
+            --y: calc(var(--unitSize) * -10);
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.6) calc(var(--unitSize) * 1.8) rgba(0,0,0,0.05),
+                0 calc(var(--unitSize) * 1) calc(var(--unitSize) * 1.4) rgba(0,0,0,0.08);
+        }
+
+        .eye {
+            width: calc(var(--unitSize) * 2);
+            height: calc(var(--unitSize) * 3);
+            border-radius: 50%;
+            --x: calc(var(--unitSize) * -6);
+            --y: calc(var(--unitSize) * 2);
+            background: none;
+            z-index: 20;
+            cursor: pointer;
+        }
+
+        .eye-blink {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 40%, #3a3a3a, #1a1a1a);
+            border-radius: 50%;
+            animation: blink 3s infinite ease-in-out;
+            transform-origin: center center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 calc(var(--unitSize) * 0.6) rgba(0,0,0,0.7);
+        }
+
+        .eye-blink::after {
+            content: '';
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            background: white;
+            border-radius: 50%;
+            top: 14%;
+            left: 54%;
+            opacity: 0.85;
+            filter: blur(0.3px);
+        }
+
+        @keyframes blink {
+            0%, 88%, 100% { transform: scaleY(1); }
+            92%, 96% { transform: scaleY(0.08); }
+        }
+
+        .nose {
+            --y: calc(var(--unitSize) * 5.2);
+            background: radial-gradient(ellipse at 50% 35%, #fff3d6, #fad4a8);
+            border-radius: 50%;
+            width: calc(var(--unitSize) * 3.5);
+            height: calc(var(--unitSize) * 2.5);
+            z-index: 12;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.2) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.3) calc(var(--unitSize) * 0.8) rgba(0,0,0,0.06);
+        }
+
+        .whisker {
+            border-top: calc(var(--unitSize) * 0.5) solid #2b2b2b;
+            border-inline: calc(var(--unitSize) * 0.25) solid transparent;
+            width: calc(var(--unitSize) * 6.5);
+            height: calc(var(--unitSize) * 0.7);
+            border-radius: 50% / 100% 100% 0 0;
+            z-index: 15;
+            filter: drop-shadow(0 calc(var(--unitSize) * 0.2) calc(var(--unitSize) * 0.15) rgba(0,0,0,0.15));
+        }
+
+        .whisker1 { --x: calc(var(--unitSize) * -14); width: calc(var(--unitSize) * 7); --y: calc(var(--unitSize) * 0.5); }
+        .whisker2 { --x: calc(var(--unitSize) * -13.5); --y: calc(var(--unitSize) * 4); --r: -10deg; }
+        .whisker3 { --x: calc(var(--unitSize) * -11.8); --y: calc(var(--unitSize) * 7.3); --r: -28deg; width: calc(var(--unitSize) * 6); }
+
+        .bow {
+            --x: calc(var(--unitSize) * 8);
+            --y: calc(var(--unitSize) * -8);
+            --r: 25deg;
+            z-index: 15;
+        }
+
+        .bowP1 {
+            background: radial-gradient(ellipse at 35% 30%, #ff8a8a, #e64545);
+            width: calc(var(--unitSize) * 9);
+            height: calc(var(--unitSize) * 8);
+            border-radius: 50% / 60% 60% 40% 40%;
+            --r: 90deg;
+            --x: calc(var(--unitSize) * -4.5);
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.5) calc(var(--unitSize) * 1) rgba(0,0,0,0.15),
+                inset 0 calc(var(--unitSize) * -0.3) calc(var(--unitSize) * 0.6) rgba(255,255,255,0.5);
+        }
+
+        .bowP2 {
+            background: radial-gradient(circle at 40% 35%, #ff9f9f, #dd4b4b);
+            width: calc(var(--unitSize) * 3);
+            aspect-ratio: 1/1;
+            border: calc(var(--unitSize) * 0.4) solid white;
+            border-radius: 50%;
+            --r: 90deg;
+            --x: calc(var(--unitSize) * -3.5);
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.3) calc(var(--unitSize) * 0.7) rgba(0,0,0,0.2);
+        }
+
+        .bowP3 {
+            background: radial-gradient(circle at 45% 35%, #ff9999, #c93838);
+            width: calc(var(--unitSize) * 6);
+            aspect-ratio: 1/1;
+            border: calc(var(--unitSize) * 0.5) solid white;
+            border-radius: 50%;
+            --r: 90deg;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.4) calc(var(--unitSize) * 0.9) rgba(0,0,0,0.25);
+        }
+    
+        .shirt {
+            --y: calc(var(--unitSize) * 8);
+            z-index: 2;
+        }
+
+        .shirtP1 {
+            width: calc(var(--unitSize) * 20);
+            background: linear-gradient(180deg, #407ad6 0%, #2350a0 100%);
+            height: calc(var(--unitSize) * 20);
+            border-radius: 50% / 95% 95% 5% 5%;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.8) calc(var(--unitSize) * 2) rgba(0,0,0,0.2),
+                inset 0 calc(var(--unitSize) * -0.5) calc(var(--unitSize) * 1.5) rgba(255,255,255,0.25);
+        }
+
+        .shirtP2 {
+            width: calc(var(--unitSize) * 2.2);
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #ffffff, #e0e0e0);
+            --y: calc(var(--unitSize) * -1.5);
+            --x: calc(var(--unitSize) * -5);
+        }
+
+        .shirtP3 {
+            border-radius: 50%;
+            aspect-ratio: 1/1;
+            background:
+                radial-gradient(ellipse at 50% 40%, #ff8a8a, #d64545),
+                repeating-radial-gradient(circle at 50% -152%, transparent calc(var(--unitSize) * 0), transparent calc(var(--unitSize) * 0.7), white calc(var(--unitSize) * 0.8), white calc(var(--unitSize) * 1.5), transparent calc(var(--unitSize) * 1.6));
+            width: calc(var(--unitSize) * 8.5);
+            --y: calc(var(--unitSize) * -6);
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.4) calc(var(--unitSize) * 0.9) rgba(0,0,0,0.2);
+        }
+
+        .hand1 {
+            width: calc(var(--unitSize) * 18);
+            height: calc(var(--unitSize) * 9);
+            border-radius: calc(var(--unitSize) * 999.9);
+            background:
+                radial-gradient(circle at -45% 50%, #ffffff 55%, #e8e8e8 70%, transparent 70%),
+                repeating-radial-gradient(circle at -50% 50%, transparent calc(var(--unitSize) * 0), transparent calc(var(--unitSize) * 0.7), #ff6d6d calc(var(--unitSize) * 0.8), #ff6d6d calc(var(--unitSize) * 1.5), transparent calc(var(--unitSize) * 1.6));
+            background-color: white;
+            transform-origin: 100% 20%;
+            --y: calc(var(--unitSize) * 2.5);
+            --x: calc(var(--unitSize) * -12.7);
+            --r: -45deg;
+            z-index: 1;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.4) calc(var(--unitSize) * 0.8) rgba(0,0,0,0.05);
+        }
+
+        .hand2 {
+            width: calc(var(--unitSize) * 18);
+            height: calc(var(--unitSize) * 9);
+            border-radius: calc(var(--unitSize) * 999.9);
+            background:
+                radial-gradient(circle at 145% 50%, #ffffff 55%, #e8e8e8 70%, transparent 70%),
+                repeating-radial-gradient(circle at 150% 50%, transparent calc(var(--unitSize) * 0), transparent calc(var(--unitSize) * 0.7), #ff6d6d calc(var(--unitSize) * 0.8), #ff6d6d calc(var(--unitSize) * 1.5), transparent calc(var(--unitSize) * 1.6));
+            background-color: white;
+            transform-origin: 0% 20%;
+            --y: calc(var(--unitSize) * 2.5);
+            --x: calc(var(--unitSize) * 12.7);
+            --r: 45deg;
+            z-index: 1;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.4) calc(var(--unitSize) * 0.8) rgba(0,0,0,0.05);
+        }
+
+        @keyframes waveSmooth {
+            0% { transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(var(--r)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy)); }
+            15% { transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(calc(var(--r) - 58deg)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy)); }
+            30% { transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(var(--r)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy)); }
+            45% { transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(calc(var(--r) - 42deg)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy)); }
+            60% { transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(var(--r)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy)); }
+            100% { transform: scaleX(var(--_scale)) translateX(var(--x)) translateY(var(--y)) rotate(var(--r)) skew(var(--s)) skewX(var(--sx)) skewY(var(--sy)); }
+        }
+
+        .hand2.wave {
+            animation: waveSmooth 0.9s cubic-bezier(0.4, 0, 0.2, 1) 1;
+        }
+    
+        .leg {
+            border-radius: 5% 0 50% 50% / 70% 70% 10% 30%;
+            background: radial-gradient(ellipse at 50% 30%, #ffffff, #e8e8e8);
+            width: calc(var(--unitSize) * 10);
+            height: calc(var(--unitSize) * 12);
+            --y: calc(var(--unitSize) * 20);
+            --x: calc(var(--unitSize) * -5.2);
+            z-index: 1;
+            box-shadow:
+                0 0 0 calc(var(--unitSize) * 0.25) #2b2b2b,
+                inset 0 calc(var(--unitSize) * 0.5) calc(var(--unitSize) * 1) rgba(0,0,0,0.04);
+        }
+    </style>
+</head>
+<body>
+<div class="canvas symmetry">
+    <div class="kitty symmetry">
+        <!-- Уши -->
+        <div class="ear transform" style="--x: calc(var(--unitSize) * -10); --y: calc(var(--unitSize) * -17); --r: 6deg;"></div>
+        <div class="ear transform" style="--x: calc(var(--unitSize) * -10); --y: calc(var(--unitSize) * -17); --r: 6deg; --_scale: -1;"></div>
+
+        <div class="face symmetry transform">
+            <div class="eye transform">
+                <div class="eye-blink"></div>
+            </div>
+            <div class="eye flipVertical">
+                <div class="eye-blink"></div>
+            </div>
+
+            <div class="nose transform"></div>
+
+            <div class="whisker whisker1 transform"></div>
+            <div class="whisker whisker2 transform"></div>
+            <div class="whisker whisker3 transform"></div>
+            <div class="whisker whisker1 flipVertical"></div>
+            <div class="whisker whisker2 flipVertical"></div>
+            <div class="whisker whisker3 flipVertical"></div>
+
+            <div class="bow transform symmetry">
+                <div class="bowP1 transform"></div>
+                <div class="bowP2 transform"></div>
+                <div class="bowP1 flipVertical"></div>
+                <div class="bowP2 flipVertical"></div>
+                <div class="bowP3 transform"></div>
+            </div>
+        </div>
+
+        <div class="leg transform"></div>
+        <div class="leg flipVertical"></div>
+
+        <div class="hand1 transform"></div>
+        <div class="hand2 transform"></div>
+
+        <div class="shirt symmetry transform">
+            <div class="shirtP1 transform"></div>
+            <div class="shirtP2 transform"></div>
+            <div class="shirtP2 flipVertical"></div>
+            <div class="shirtP3 transform"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const eyes = document.querySelectorAll('.eye');
+        eyes.forEach(eye => {
+            if (!eye.querySelector('.eye-blink')) {
+                const blinkDiv = document.createElement('div');
+                blinkDiv.className = 'eye-blink';
+                blinkDiv.style.background = '#2b2b2b';
+                blinkDiv.style.width = '100%';
+                blinkDiv.style.height = '100%';
+                blinkDiv.style.borderRadius = '50%';
+                blinkDiv.style.animation = 'blink 3s infinite ease-in-out';
+                eye.appendChild(blinkDiv);
+            }
+            eye.style.background = 'none';
+        });
+
+        const kitty = document.querySelector('.kitty');
+        const rightArm = document.querySelector('.hand2');
+        
+        if (!kitty || !rightArm) return;
+
+        let waveTimer = null;
+
+        function waveRightHand() {
+            if (rightArm.classList.contains('wave')) {
+                rightArm.classList.remove('wave');
+                void rightArm.offsetWidth;
+            }
+            rightArm.classList.add('wave');
+            
+            if (waveTimer) clearTimeout(waveTimer);
+            waveTimer = setTimeout(() => {
+                if (rightArm) rightArm.classList.remove('wave');
+                waveTimer = null;
+            }, 950);
+        }
+
+        function blinkOnce() {
+            const blinkers = document.querySelectorAll('.eye-blink');
+            blinkers.forEach(el => {
+                const originalAnimation = el.style.animation;
+                el.style.animation = 'none';
+                el.offsetHeight;
+                el.style.transform = 'scaleY(0.05)';
+                setTimeout(() => {
+                    if (el) {
+                        el.style.transform = '';
+                        if (originalAnimation) {
+                            el.style.animation = originalAnimation;
+                        } else {
+                            el.style.animation = 'blink 3s infinite ease-in-out';
+                        }
+                    }
+                }, 130);
+            });
+        }
+
+        kitty.style.cursor = 'pointer';
+        kitty.addEventListener('click', function(e) {
+            e.stopPropagation();
+            waveRightHand();
+        });
+    })();
+</script>
+</body>
+</html>
